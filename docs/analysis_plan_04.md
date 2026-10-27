@@ -37,8 +37,10 @@ vitiligo cannot be interpreted.
   with separate proliferating and senescent groups, from different inducers or different studies,
   at least 3 samples per group. Two-colour ratio arrays are excluded. Candidates, to be confirmed
   (sample counts and availability of expression or count tables checked first): GSE130100
-  (RAS-induced senescence, BJ-TERT, RNA-seq), GSE42509 (BJ fibroblasts, proliferation versus
-  senescence, RNA-seq). Reserve: GSE130099 (myrAKT1-induced senescence, RNA-seq).
+  (RAS-induced senescence, BJ-TERT, RNA-seq, 3 control and 3 senescent samples). The second dataset
+  is to be chosen from GSE130099 (myrAKT1-induced senescence, RNA-seq) and GSE63577 (replicative
+  senescence, RNA-seq). GSE130100 and GSE130099 use the same BJ-TERT cell line, which is stated
+  as a limitation if both are used.
 - RNA-seq processing: raw counts, genes with low counts filtered, converted to log2 CPM, then
   scored exactly like microarray data (GSVA Gaussian kernel for sets; z-scores for the arrest panel).
 - Test per dataset: senescent versus proliferating difference in each score (limma or t-test).
@@ -112,3 +114,9 @@ readout is the standardised slope β for IFN_c, with 95% confidence interval and
   sample labelled as a ratio; GSE6762: four samples each labelled senescent versus proliferating),
   with no expression values and no separate proliferating group. Section 3 was changed to allow
   RNA-seq datasets and to list GSE130100 and GSE42509 as candidates.
+- 2026-10-27, before any analysis in this plan was run: GSE42509 was checked and excluded. Its
+  RNA-seq part has only one sample labelled as the fully senescent group (S.rna) and two
+  pre-senescent samples, below the minimum of 3 samples per group. Its other 8 samples are
+  ribosome profiling, not transcriptome data. GSE130100 passes the check on sample numbers
+  (3 empty-vector controls, 3 HRAS samples); whether its supplementary table can be scored is
+  still to be confirmed.
