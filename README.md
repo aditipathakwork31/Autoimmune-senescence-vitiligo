@@ -76,3 +76,21 @@ were moved into `results/` and renamed to the accession number).
 
 Single-cell skin data to ask which cell types carry a senescence signal; a senescence
 signature that does not rely on secreted inflammatory factors.
+
+## Data availability
+
+All three datasets are public in NCBI GEO under the accessions listed above (GSE75819,
+GSE65127, GSE53146). The original publication for each dataset is listed on its GEO page.
+
+## Method references
+
+- Hänzelmann S, Castelo R, Guinney J. GSVA: gene set variation analysis for microarray and
+  RNA-seq data. BMC Bioinformatics, 2013.
+- Ritchie ME et al. limma powers differential expression analyses for RNA-sequencing and
+  microarray studies. Nucleic Acids Research, 2015.
+- Liberzon A et al. The Molecular Signatures Database Hallmark gene set collection.
+  Cell Systems, 2015.
+- Saul D et al. A new gene set identifies senescent cells and predicts senescence-associated
+  pathways across tissues (SenMayo). Nature Communications, 2022.
+- Fridman AL, Tainsky MA. Critical pathways in cellular senescence and immortalization revealed
+  by gene expression profiling. Oncogene, 2008.
