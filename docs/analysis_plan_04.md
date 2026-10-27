@@ -38,9 +38,8 @@ vitiligo cannot be interpreted.
   at least 3 samples per group. Two-colour ratio arrays are excluded. Candidates, to be confirmed
   (sample counts and availability of expression or count tables checked first): GSE130100
   (RAS-induced senescence, BJ-TERT, RNA-seq, 3 control and 3 senescent samples). The second dataset
-  is to be chosen from GSE130099 (myrAKT1-induced senescence, RNA-seq) and GSE63577 (replicative
-  senescence, RNA-seq). GSE130100 and GSE130099 use the same BJ-TERT cell line, which is stated
-  as a limitation if both are used.
+  is GSE63577 (replicative senescence, RNA-seq, five fibroblast lines); see the amendment log of
+  2026-10-28 for how it is used.
 - RNA-seq processing: raw counts, genes with low counts filtered, converted to log2 CPM, then
   scored exactly like microarray data (GSVA Gaussian kernel for sets; z-scores for the arrest panel).
 - Test per dataset: senescent versus proliferating difference in each score (limma or t-test).
@@ -120,3 +119,20 @@ readout is the standardised slope β for IFN_c, with 95% confidence interval and
   ribosome profiling, not transcriptome data. GSE130100 passes the check on sample numbers
   (3 empty-vector controls, 3 HRAS samples); whether its supplementary table can be scored is
   still to be confirmed.
+- 2026-10-28, before any analysis in this plan was run: the validation datasets are fixed as
+  GSE130100 (RAS-induced senescence in BJ-TERT cells; 3 empty-vector controls versus 3 HRAS samples;
+  group labels checked with HRAS expression) and GSE63577 (RNA-seq, five fibroblast lines, 3
+  replicates per group; the study describes the comparison as senescent versus young proliferating
+  fibroblasts). That the late-passage cells are senescent is taken from the study description and
+  was not independently verified.
+  GSE63577 counts as ONE validation dataset. Its primary test is score ~ group + cell line over the
+  30 young versus late-passage samples (MRC-5 PD32 vs PD72, BJ young vs old, IMR-90, WI-38, HFF
+  PD16 vs PD74). Per-cell-line differences and the intermediate-passage samples (HFF PD26/46/64,
+  MRC-5 PD42/52/62) are reported descriptively, with no verdict. GSE130099 is not used.
+  Because only two validation datasets are used, "at least 2" means a score must pass in both.
+  RNA-seq processing: library-size CPM with no further normalisation, genes kept if CPM > 1 in at
+  least 3 samples, log2(CPM + 1); counts of rows sharing a gene symbol are summed. Scores that are
+  not validated are dropped from Step B.
+  Observations made while checking the data, before any scoring: in raw counts LMNB1 was lower in
+  senescent samples in both datasets, CDKN1A was not clearly higher in GSE130100, and CDKN2A changed
+  little in the BJ cells of GSE63577. These do not change any rule.

@@ -70,7 +70,8 @@ script downloads its dataset from GEO and writes its outputs to `results/<access
 
 ## Repository layout
 
-- `scripts/` analysis scripts (one per dataset)
+- `docs/` analysis plan 04, written before that analysis was run (decision rules and amendment log)
+- `scripts/` analysis scripts: 01-03 one per vitiligo dataset, 04 the non-secreted senescence-score analysis
 - `results/` figures, score tables, test statistics, console output and session information
   for each dataset
 
