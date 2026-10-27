@@ -1,0 +1,44 @@
+group
+     healthy     lesional  nonlesional perilesional 
+          10           10           10           10 
+Value range: 1.3269 14.8174 
+Genes x samples: 22880 40 
+
+Interferon genes, lesional minus non-lesional (log2):
+ CXCL9 CXCL10  STAT1   IFNG   GZMB 
+  0.21  -0.16  -0.16   0.31  -0.05 
+
+Melanocyte genes, lesional minus non-lesional (log2):
+ MITF   TYR   DCT  PMEL MLANA 
+-0.51 -2.93 -4.07 -2.97 -4.81 
+
+Paired lesional vs non-lesional, pathway scores:
+               logFC AveExpr      t P.Value adj.P.Val      B
+IFN_ALPHA     -0.172   0.062 -1.506   0.149     0.578 -4.392
+IFN_GAMMA     -0.135   0.063 -1.352   0.193     0.578 -4.508
+FRIDMAN       -0.046   0.033 -0.572   0.574     0.803 -4.937
+IL6_JAK_STAT3 -0.023   0.061 -0.295   0.771     0.803 -5.010
+SENMAYO       -0.019   0.038 -0.266   0.793     0.803 -5.015
+SASP           0.020   0.043  0.253   0.803     0.803 -5.017
+
+IFN_c -> senescence score (lesional and non-lesional samples only):
+  senescence_set               model estimate std_error      t        p
+1        SENMAYO unpaired_adj_status   0.3046    0.1415  2.153 0.045944
+2        SENMAYO   paired_by_patient   0.3580    0.0693  5.167 0.000856
+3        FRIDMAN unpaired_adj_status   0.1110    0.1436  0.773 0.450226
+4        FRIDMAN   paired_by_patient   0.0454    0.2453  0.185 0.857793
+5           SASP unpaired_adj_status  -0.0798    0.1603 -0.498 0.625058
+6           SASP   paired_by_patient   0.1795    0.2288  0.785 0.455330
+
+Spearman correlation IFN_c vs SenMayo within each group (n = 10 each):
+         group  n   rho      p
+1      healthy 10 0.455 0.1909
+2  nonlesional 10 0.176 0.6320
+3 perilesional 10 0.733 0.0212
+4     lesional 10 0.285 0.4274
+
+Pooled model SENMAYO ~ IFN_c + group (all 40 samples; samples from the same patient are not independent):
+  Estimate Std. Error    t value   Pr(>|t|) 
+    0.3846     0.0860     4.4726     0.0001 
+
+Done. Results saved in ~/autoimmune-repo/results/GSE65127 

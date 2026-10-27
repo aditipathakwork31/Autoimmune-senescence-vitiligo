@@ -1,0 +1,10 @@
+"gene","group","log2_diff"
+"CXCL9","interferon",1.57
+"CXCL10","interferon",3.32
+"STAT1","interferon",0.79
+"IFNG","interferon",1.23
+"GZMB","interferon",4.12
+"MITF","melanocyte",-0.41
+"TYR","melanocyte",-1.08
+"DCT","melanocyte",-5.09
+"MLANA","melanocyte",-4

@@ -14,8 +14,11 @@ options(timeout = 600)
 ## ---------------- CONFIG ----------------
 ACC      <- "GSE75819"
 GENE_COL <- "ILMN_Gene"
-OUTDIR   <- "~/autoimmune-senescence/results_GSE75819"
+REPO     <- path.expand("~/autoimmune-repo")   # local clone of the GitHub repository
+OUTDIR   <- file.path(REPO, "results", ACC)
 dir.create(OUTDIR, recursive = TRUE, showWarnings = FALSE)
+if (sink.number() > 0) sink()                  # close a log left open by an earlier failed run
+sink(file.path(OUTDIR, "console_output.txt"), split = TRUE)   # copy of everything printed
 
 ## ---------------- 1. DOWNLOAD ----------------
 gset  <- getGEO(ACC, GSEMatrix = TRUE)
@@ -57,10 +60,14 @@ chk <- function(genes) {
   genes <- genes[genes %in% rownames(xg)]
   round(sapply(genes, function(g) mean(xg[g, les]) - mean(xg[g, !les])), 2)
 }
-cat("\nInterferon genes, lesional minus non-lesional (log2):\n")
-print(chk(c("CXCL9", "CXCL10", "STAT1", "IFNG", "GZMB")))
-cat("\nMelanocyte genes, lesional minus non-lesional (log2):\n")
-print(chk(c("MITF", "TYR", "DCT", "PMEL", "MLANA")))
+ifn_chk <- chk(c("CXCL9", "CXCL10", "STAT1", "IFNG", "GZMB"))
+mel_chk <- chk(c("MITF", "TYR", "DCT", "PMEL", "MLANA"))
+cat("\nInterferon genes, lesional minus non-lesional (log2):\n"); print(ifn_chk)
+cat("\nMelanocyte genes, lesional minus non-lesional (log2):\n"); print(mel_chk)
+write.csv(data.frame(gene = c(names(ifn_chk), names(mel_chk)),
+                     group = c(rep("interferon", length(ifn_chk)), rep("melanocyte", length(mel_chk))),
+                     log2_diff = c(ifn_chk, mel_chk)),
+          file.path(OUTDIR, "sanity_genes.csv"), row.names = FALSE)
 
 ## ---------------- 6. GENE SETS ----------------
 h  <- msigdbr(species = "Homo sapiens", collection = "H")
@@ -107,24 +114,26 @@ write.csv(tab, file.path(OUTDIR, "paired_lesional_vs_nonlesional.csv"))
 ## ---------------- 9. IFN vs SENESCENCE ----------------
 d <- data.frame(t(sc_clean), status = st, patient = pt, batch = batch)
 
-cat("\nIFN_c -> senescence score, adjusting for batch and status (unpaired):\n")
-for (s in c("SENMAYO", "FRIDMAN", "SASP")) {
-  cf <- summary(lm(d[[s]] ~ IFN_c + batch + status, data = d))$coefficients
-  cat(s, ": ", paste(round(cf["IFN_c", ], 3), collapse = "  "), "\n")
-}
-cat("\nSame, paired by patient (patient as fixed effect; batch absorbed):\n")
-for (s in c("SENMAYO", "FRIDMAN", "SASP")) {
-  cf <- summary(lm(d[[s]] ~ IFN_c + status + patient, data = d))$coefficients
-  cat(s, ": ", paste(round(cf["IFN_c", ], 3), collapse = "  "), "\n")
-}
-cat("(columns: Estimate, Std.Error, t, p)\n")
+assoc <- do.call(rbind, lapply(c("SENMAYO", "FRIDMAN", "SASP"), function(s) {
+  m1 <- summary(lm(d[[s]] ~ IFN_c + batch + status, data = d))$coefficients["IFN_c", ]
+  m2 <- summary(lm(d[[s]] ~ IFN_c + status + patient, data = d))$coefficients["IFN_c", ]
+  data.frame(senescence_set = s,
+             model = c("unpaired_adj_batch_status", "paired_by_patient"),
+             rbind(m1, m2), row.names = NULL)
+}))
+names(assoc)[3:6] <- c("estimate", "std_error", "t", "p")
+cat("\nIFN_c -> senescence score (unpaired adjusts for batch and status; paired uses patient):\n")
+print(assoc, digits = 3)
+write.csv(assoc, file.path(OUTDIR, "ifn_vs_senescence_models.csv"), row.names = FALSE)
 
-cat("\nSpearman correlation IFN_c vs SenMayo within each skin type:\n")
-for (g in c("lesional", "nonlesional")) {
+cors <- do.call(rbind, lapply(c("lesional", "nonlesional"), function(g) {
   s  <- d[d$status == g, ]
-  ct <- cor.test(s$IFN_c, s$SENMAYO, method = "spearman")
-  cat(g, ": rho =", round(ct$estimate, 2), " p =", round(ct$p.value, 3), "\n")
-}
+  ct <- suppressWarnings(cor.test(s$IFN_c, s$SENMAYO, method = "spearman"))
+  data.frame(group = g, rho = unname(ct$estimate), p = ct$p.value)
+}))
+cat("\nSpearman correlation IFN_c vs SenMayo within each skin type:\n")
+print(cors, digits = 3)
+write.csv(cors, file.path(OUTDIR, "spearman_ifn_vs_senmayo_by_status.csv"), row.names = FALSE)
 
 ## ---------------- 10. FIGURES ----------------
 p1 <- ggplot(d, aes(IFN_c, SENMAYO, color = status)) +
@@ -146,3 +155,4 @@ ggsave(file.path(OUTDIR, "pca.png"), p3, width = 6.5, height = 5, dpi = 200)
 ## ---------------- 11. RECORD THE SOFTWARE VERSIONS ----------------
 writeLines(capture.output(sessionInfo()), file.path(OUTDIR, "sessionInfo.txt"))
 cat("\nDone. Results saved in", OUTDIR, "\n")
+sink()

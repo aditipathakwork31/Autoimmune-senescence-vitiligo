@@ -15,8 +15,11 @@ options(timeout = 600)
 ## ---------------- CONFIG ----------------
 ACC      <- "GSE65127"
 GENE_COL <- "Gene Symbol"          # column in fData() holding gene symbols
-OUTDIR   <- "~/autoimmune-senescence/results_GSE65127"
+REPO     <- path.expand("~/autoimmune-repo")   # local clone of the GitHub repository
+OUTDIR   <- file.path(REPO, "results", ACC)
 dir.create(OUTDIR, recursive = TRUE, showWarnings = FALSE)
+if (sink.number() > 0) sink()                  # close a log left open by an earlier failed run
+sink(file.path(OUTDIR, "console_output.txt"), split = TRUE)   # copy of everything printed
 
 ## ---------------- 1. DOWNLOAD ----------------
 gset  <- getGEO(ACC, GSEMatrix = TRUE)
@@ -51,10 +54,14 @@ chk <- function(genes, a = "lesional", b = "nonlesional") {
   round(sapply(genes, function(g)
     mean(xg[g, group == a]) - mean(xg[g, group == b])), 2)
 }
-cat("\nInterferon genes, lesional minus non-lesional (log2):\n")
-print(chk(c("CXCL9", "CXCL10", "STAT1", "IFNG", "GZMB")))
-cat("\nMelanocyte genes, lesional minus non-lesional (log2):\n")
-print(chk(c("MITF", "TYR", "DCT", "PMEL", "MLANA")))
+ifn_chk <- chk(c("CXCL9", "CXCL10", "STAT1", "IFNG", "GZMB"))
+mel_chk <- chk(c("MITF", "TYR", "DCT", "PMEL", "MLANA"))
+cat("\nInterferon genes, lesional minus non-lesional (log2):\n"); print(ifn_chk)
+cat("\nMelanocyte genes, lesional minus non-lesional (log2):\n"); print(mel_chk)
+write.csv(data.frame(gene = c(names(ifn_chk), names(mel_chk)),
+                     group = c(rep("interferon", length(ifn_chk)), rep("melanocyte", length(mel_chk))),
+                     log2_diff = c(ifn_chk, mel_chk)),
+          file.path(OUTDIR, "sanity_genes.csv"), row.names = FALSE)
 
 ## ---------------- 5. GENE SETS ----------------
 h  <- msigdbr(species = "Homo sapiens", collection = "H")
@@ -91,22 +98,39 @@ write.csv(t(sc_clean), file.path(OUTDIR, "scores_clean.csv"))
 pt  <- factor(patient[ln])
 st  <- factor(group[ln], levels = c("nonlesional", "lesional"))
 fit <- eBayes(lmFit(sc_full[, ln], model.matrix(~ pt + st)))
+tab <- topTable(fit, coef = "stlesional", number = Inf)
 cat("\nPaired lesional vs non-lesional, pathway scores:\n")
-print(round(topTable(fit, coef = "stlesional", number = Inf), 3))
+print(round(tab, 3))
+write.csv(tab, file.path(OUTDIR, "paired_lesional_vs_nonlesional.csv"))
 
 ## ---------------- 8. IFN vs SENESCENCE ----------------
 d <- data.frame(t(sc_clean[, ln]), status = st, patient = pt)
-cat("\nIFN_c -> senescence score, adjusting for status (unpaired):\n")
-for (s in c("SENMAYO", "FRIDMAN", "SASP")) {
-  cf <- summary(lm(d[[s]] ~ IFN_c + status, data = d))$coefficients
-  cat(s, ": ", paste(round(cf["IFN_c", ], 3), collapse = "  "), "\n")
-}
-cat("\nSame, paired by patient (patient as fixed effect):\n")
-for (s in c("SENMAYO", "FRIDMAN", "SASP")) {
-  cf <- summary(lm(d[[s]] ~ IFN_c + status + patient, data = d))$coefficients
-  cat(s, ": ", paste(round(cf["IFN_c", ], 3), collapse = "  "), "\n")
-}
-cat("(columns: Estimate, Std.Error, t, p)\n")
+assoc <- do.call(rbind, lapply(c("SENMAYO", "FRIDMAN", "SASP"), function(s) {
+  m1 <- summary(lm(d[[s]] ~ IFN_c + status, data = d))$coefficients["IFN_c", ]
+  m2 <- summary(lm(d[[s]] ~ IFN_c + status + patient, data = d))$coefficients["IFN_c", ]
+  data.frame(senescence_set = s,
+             model = c("unpaired_adj_status", "paired_by_patient"),
+             rbind(m1, m2), row.names = NULL)
+}))
+names(assoc)[3:6] <- c("estimate", "std_error", "t", "p")
+cat("\nIFN_c -> senescence score (lesional and non-lesional samples only):\n")
+print(assoc, digits = 3)
+write.csv(assoc, file.path(OUTDIR, "ifn_vs_senescence_models.csv"), row.names = FALSE)
+
+# Control: the same association within each group, including healthy volunteers
+dd <- data.frame(t(sc_clean), group = group)
+ctrl <- do.call(rbind, lapply(c("healthy", "nonlesional", "perilesional", "lesional"), function(g) {
+  s  <- dd[dd$group == g, ]
+  ct <- suppressWarnings(cor.test(s$IFN_c, s$SENMAYO, method = "spearman"))
+  data.frame(group = g, n = nrow(s), rho = unname(ct$estimate), p = ct$p.value)
+}))
+cat("\nSpearman correlation IFN_c vs SenMayo within each group (n = 10 each):\n")
+print(ctrl, digits = 3)
+write.csv(ctrl, file.path(OUTDIR, "spearman_ifn_vs_senmayo_by_group.csv"), row.names = FALSE)
+
+pooled <- summary(lm(SENMAYO ~ IFN_c + group, data = dd))$coefficients["IFN_c", ]
+cat("\nPooled model SENMAYO ~ IFN_c + group (all 40 samples; samples from the same patient are not independent):\n")
+print(round(pooled, 4))
 
 ## ---------------- 9. FIGURES ----------------
 dd <- data.frame(t(sc_clean), group = group)
@@ -120,4 +144,6 @@ p2 <- ggplot(data.frame(pca$x[, 1:2], group = group), aes(PC1, PC2, color = grou
   geom_point(size = 3) + labs(title = paste(ACC, "PCA"))
 ggsave(file.path(OUTDIR, "pca.png"), p2, width = 6, height = 5, dpi = 200)
 
+writeLines(capture.output(sessionInfo()), file.path(OUTDIR, "sessionInfo.txt"))
 cat("\nDone. Results saved in", OUTDIR, "\n")
+sink()

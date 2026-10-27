@@ -1,0 +1,38 @@
+group
+ control vitiligo 
+       5        5 
+Value range after log2: 6.086654 16.11647 
+Genes x samples: 18297 10 
+Not on array / filtered out: PMEL 
+
+Interferon genes, vitiligo minus control (log2):
+ CXCL9 CXCL10  STAT1   IFNG   GZMB 
+  1.57   3.32   0.79   1.23   4.12 
+
+Melanocyte genes, vitiligo minus control (log2):
+ MITF   TYR   DCT MLANA 
+-0.41 -1.08 -5.09 -4.00 
+
+Gene-set coverage on this array:
+     set in_set on_array
+   IFN_c    181      172
+ SENMAYO    114      103
+ FRIDMAN     70       68
+    SASP    107       43
+
+Vitiligo vs control, pathway scores (unpaired, n = 5 vs 5):
+              logFC AveExpr     t P.Value adj.P.Val      B
+IFN_ALPHA     0.530  -0.028 4.829   0.000     0.000  4.874
+IFN_GAMMA     0.511  -0.018 4.661   0.000     0.000  4.093
+IL6_JAK_STAT3 0.369  -0.015 3.361   0.002     0.003 -1.021
+FRIDMAN       0.241  -0.002 2.200   0.033     0.049 -4.184
+SASP          0.191   0.018 1.744   0.088     0.105 -5.066
+SENMAYO       0.164  -0.016 1.491   0.142     0.142 -5.466
+
+IFN_c -> senescence score, adjusting for group (n = 10):
+ senescence_set estimate std_error       t      p spearman_rho_all10
+        SENMAYO   0.6418     0.249  2.5786 0.0365              0.648
+        FRIDMAN  -0.0259     0.399 -0.0651 0.9499              0.479
+           SASP   0.4384     0.270  1.6246 0.1483              0.685
+
+Done. Results saved in ~/autoimmune-repo/results/GSE53146 

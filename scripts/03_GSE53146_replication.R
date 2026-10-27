@@ -14,8 +14,11 @@ options(timeout = 600)
 ## ---------------- CONFIG ----------------
 ACC      <- "GSE53146"
 GENE_COL <- "ILMN_Gene"
-OUTDIR   <- "~/autoimmune-senescence/results_GSE53146"
+REPO     <- path.expand("~/autoimmune-repo")   # local clone of the GitHub repository
+OUTDIR   <- file.path(REPO, "results", ACC)
 dir.create(OUTDIR, recursive = TRUE, showWarnings = FALSE)
+if (sink.number() > 0) sink()                  # close a log left open by an earlier failed run
+sink(file.path(OUTDIR, "console_output.txt"), split = TRUE)   # copy of everything printed
 
 ## ---------------- 1. DOWNLOAD ----------------
 gset  <- getGEO(ACC, GSEMatrix = TRUE)
@@ -47,10 +50,14 @@ chk <- function(genes) {
   round(sapply(present, function(g)
     mean(xg[g, group == "vitiligo"]) - mean(xg[g, group == "control"])), 2)
 }
-cat("\nInterferon genes, vitiligo minus control (log2):\n")
-print(chk(c("CXCL9", "CXCL10", "STAT1", "IFNG", "GZMB")))
-cat("\nMelanocyte genes, vitiligo minus control (log2):\n")
-print(chk(c("MITF", "TYR", "DCT", "PMEL", "MLANA")))
+ifn_chk <- chk(c("CXCL9", "CXCL10", "STAT1", "IFNG", "GZMB"))
+mel_chk <- chk(c("MITF", "TYR", "DCT", "PMEL", "MLANA"))
+cat("\nInterferon genes, vitiligo minus control (log2):\n"); print(ifn_chk)
+cat("\nMelanocyte genes, vitiligo minus control (log2):\n"); print(mel_chk)
+write.csv(data.frame(gene = c(names(ifn_chk), names(mel_chk)),
+                     group = c(rep("interferon", length(ifn_chk)), rep("melanocyte", length(mel_chk))),
+                     log2_diff = c(ifn_chk, mel_chk)),
+          file.path(OUTDIR, "sanity_genes.csv"), row.names = FALSE)
 
 ## ---------------- 5. GENE SETS ----------------
 h  <- msigdbr(species = "Homo sapiens", collection = "H")
@@ -79,8 +86,10 @@ sets_clean <- list(
 cover <- function(L) data.frame(
   set = names(L), in_set = sapply(L, function(g) length(unique(g))),
   on_array = sapply(L, function(g) sum(unique(g) %in% rownames(xg))))
+cov_tab <- cover(sets_clean)
 cat("\nGene-set coverage on this array:\n")
-print(cover(sets_clean), row.names = FALSE)
+print(cov_tab, row.names = FALSE)
+write.csv(cov_tab, file.path(OUTDIR, "gene_set_coverage.csv"), row.names = FALSE)
 
 ## ---------------- 6. SCORING ----------------
 sc_full  <- gsva(gsvaParam(xg, sets_full,  kcdf = "Gaussian", minSize = 5))
@@ -90,18 +99,21 @@ write.csv(t(sc_clean), file.path(OUTDIR, "scores_clean.csv"))
 
 ## ---------------- 7. VITILIGO vs CONTROL ----------------
 fit <- eBayes(lmFit(sc_full, model.matrix(~ group)))
+tab <- topTable(fit, coef = "groupvitiligo", number = Inf)
 cat("\nVitiligo vs control, pathway scores (unpaired, n = 5 vs 5):\n")
-print(round(topTable(fit, coef = "groupvitiligo", number = Inf), 3))
+print(round(tab, 3))
+write.csv(tab, file.path(OUTDIR, "vitiligo_vs_control.csv"))
 
 ## ---------------- 8. IFN vs SENESCENCE ----------------
 d <- data.frame(t(sc_clean), group = group)
+assoc <- do.call(rbind, lapply(intersect(c("SENMAYO", "FRIDMAN", "SASP"), colnames(d)), function(s) {
+  cf <- summary(lm(d[[s]] ~ IFN_c + group, data = d))$coefficients["IFN_c", ]
+  data.frame(senescence_set = s, estimate = cf[[1]], std_error = cf[[2]], t = cf[[3]], p = cf[[4]],
+             spearman_rho_all10 = cor(d$IFN_c, d[[s]], method = "spearman"))
+}))
 cat("\nIFN_c -> senescence score, adjusting for group (n = 10):\n")
-for (s in intersect(c("SENMAYO", "FRIDMAN", "SASP"), colnames(d))) {
-  cf <- summary(lm(d[[s]] ~ IFN_c + group, data = d))$coefficients
-  rho <- cor(d$IFN_c, d[[s]], method = "spearman")
-  cat(s, ": estimate, SE, t, p = ", paste(round(cf["IFN_c", ], 3), collapse = "  "),
-      " | Spearman rho (all 10) =", round(rho, 2), "\n")
-}
+print(assoc, digits = 3, row.names = FALSE)
+write.csv(assoc, file.path(OUTDIR, "ifn_vs_senescence_models.csv"), row.names = FALSE)
 
 ## ---------------- 9. FIGURE ----------------
 p1 <- ggplot(d, aes(IFN_c, SENMAYO, color = group)) +
@@ -109,4 +121,6 @@ p1 <- ggplot(d, aes(IFN_c, SENMAYO, color = group)) +
   labs(title = ACC, x = "IFN-gamma score (cleaned)", y = "SenMayo score (cleaned)")
 ggsave(file.path(OUTDIR, "scatter_IFN_vs_SenMayo.png"), p1, width = 6, height = 5, dpi = 200)
 
+writeLines(capture.output(sessionInfo()), file.path(OUTDIR, "sessionInfo.txt"))
 cat("\nDone. Results saved in", OUTDIR, "\n")
+sink()

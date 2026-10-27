@@ -50,8 +50,9 @@ All data are public (NCBI GEO). No patient-level or personal data are included i
 - Fridman and Reactome SASP signatures do not replicate. SASP is poorly covered on the
   GSE53146 array (43 of 107 genes).
 
-Score tables and figures are in the `results/` folders. Test statistics (estimates, standard
-errors, p-values) are printed to the console when each script is run.
+Score tables, figures and test statistics (estimates, standard errors, p-values) are in the
+`results/<accession>/` folders, together with a copy of each script's console output
+(`console_output.txt`).
 
 ## Limitations
 
@@ -62,15 +63,16 @@ interferon activity without indicating senescent cells.
 
 ## Reproduce
 
-Requires R and the packages GEOquery, limma, GSVA, msigdbr, ggplot2. Run the scripts in
-`scripts/` in order. Each script downloads its dataset from GEO and writes results to a
-folder named `results_<accession>` under `~/autoimmune-senescence/` (in this repository these
-were moved into `results/` and renamed to the accession number).
+Requires R and the packages GEOquery, limma, GSVA, msigdbr, ggplot2 (versions are recorded in
+`results/<accession>/sessionInfo.txt`). Clone this repository to `~/autoimmune-repo` (or change
+the `REPO` line at the top of each script), then run the scripts in `scripts/` in order. Each
+script downloads its dataset from GEO and writes its outputs to `results/<accession>/`.
 
 ## Repository layout
 
 - `scripts/` analysis scripts (one per dataset)
-- `results/` figures, score tables and session information for each dataset
+- `results/` figures, score tables, test statistics, console output and session information
+  for each dataset
 
 ## Next
 

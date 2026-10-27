@@ -1,0 +1,46 @@
+status
+   lesional nonlesional 
+         15          15 
+Raw range: -27.9073 42636.38 
+batch
+ A  B 
+12 18 
+Range after quantile + log2: 3.374609 14.33539 
+Genes x samples: 38275 30 
+
+Interferon genes, lesional minus non-lesional (log2):
+ CXCL9 CXCL10  STAT1   IFNG   GZMB 
+  2.36   3.23   0.99   0.37   0.71 
+
+Melanocyte genes, lesional minus non-lesional (log2):
+ MITF   TYR   DCT MLANA 
+ 0.05 -2.12 -1.96 -2.51 
+
+Genes shared with the IFN-gamma set:
+SENMAYO FRIDMAN    SASP 
+     10       7       4 
+
+Paired lesional vs non-lesional, pathway scores:
+               logFC AveExpr      t P.Value adj.P.Val      B
+IFN_ALPHA      0.284  -0.012  5.212   0.000     0.000  4.683
+IFN_GAMMA      0.177  -0.004  3.427   0.001     0.003 -1.248
+FRIDMAN       -0.101   0.020 -2.108   0.039     0.078 -4.489
+SENMAYO       -0.053   0.004 -1.090   0.280     0.419 -6.046
+IL6_JAK_STAT3  0.043   0.014  0.835   0.407     0.488 -6.288
+SASP          -0.002   0.001 -0.036   0.971     0.971 -6.634
+
+IFN_c -> senescence score (unpaired adjusts for batch and status; paired uses patient):
+  senescence_set                     model estimate std_error      t       p
+1        SENMAYO unpaired_adj_batch_status   0.3947     0.117  3.370 0.00236
+2        SENMAYO         paired_by_patient   0.2288     0.211  1.086 0.29711
+3        FRIDMAN unpaired_adj_batch_status   0.2251     0.145  1.556 0.13176
+4        FRIDMAN         paired_by_patient  -0.0459     0.186 -0.247 0.80861
+5           SASP unpaired_adj_batch_status   0.2990     0.151  1.975 0.05903
+6           SASP         paired_by_patient   0.2295     0.221  1.038 0.31828
+
+Spearman correlation IFN_c vs SenMayo within each skin type:
+        group   rho      p
+1    lesional 0.504 0.0582
+2 nonlesional 0.529 0.0454
+
+Done. Results saved in ~/autoimmune-repo/results/GSE75819 
