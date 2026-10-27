@@ -1,0 +1,162 @@
+Genes removed from each senescence set because they are in the IFN-gamma Hallmark set:
+$SenMayo
+[1] "CCL2 CCL5 CCL7 CSF2RB CXCL10 FAS ICAM1 IL15 IL6 IL7"
+
+$TANG_UP
+[1] "CDKN1A VAMP8"
+
+$TANG_DN
+[1] "none"
+
+$CHICAS
+[1] "CD274 CD69 CXCL10 CXCL11 DDX60 GCH1 HLA-B IFIT3 IL6 IRF9 ISG15 ISG20 LGALS3BP NAMPT PELI1 PLSCR1 PSMB8 PSME2 PTGS2 RBCK1 RIPK2 SAMHD1 TNFAIP3 TXNIP UBE2L6 VCAM1"
+
+$panel
+[1] "CDKN1A"
+
+Panel genes used: up = CDKN2A, CDKN2B, GADD45A | down = LMNB1 
+Set sizes:
+  S0 S2UP S2DN   S3  E2F IFNC 
+ 114   31   56  540  200  181 
+
+================ STEP A: validation in fibroblasts ================
+
+GSE130100: genes after filtering: 11305 | samples: 6 
+Group sizes:
+
+proliferating     senescent 
+            3             3 
+
+GSE63577: genes after filtering: 16646 | samples: 48 
+Primary comparison samples (young vs late passage), by cell line:
+       
+        proliferating senescent
+  BJ                3         3
+  HFF               3         3
+  IMR90             3         3
+  MRC5              3         3
+  WI38              3         3
+
+Validation, senescent minus proliferating (GSE63577 adjusted for cell line):
+   dataset score estimate        p passes
+ GSE130100    S0    0.392 6.39e-03   TRUE
+ GSE130100    S1    1.152 1.70e-03   TRUE
+ GSE130100    S2   -0.311 2.96e-01  FALSE
+ GSE130100    S3    0.223 4.33e-02   TRUE
+  GSE63577    S0    0.220 8.82e-07   TRUE
+  GSE63577    S1    1.124 5.16e-05   TRUE
+  GSE63577    S2    1.347 8.61e-11   TRUE
+  GSE63577    S3   -0.376 5.76e-09  FALSE
+
+Validated (positive and p < 0.05 in both datasets):
+   S0    S1    S2    S3 
+ TRUE  TRUE FALSE FALSE 
+
+Panel genes, senescent minus proliferating (log2 CPM):
+     gene diff_GSE130100 diff_GSE63577
+1  CDKN2A         0.9484         0.267
+2  CDKN2B         0.3768         1.544
+3 GADD45A         0.0869         0.358
+4   LMNB1        -0.4803        -3.084
+Panel genes moving the wrong way in both datasets: none 
+
+Secondary: Spearman correlation of score with population doublings (no verdict):
+ line score  n    rho
+  HFF    S0 15  0.927
+  HFF    S1 15  0.818
+  HFF    S2 15  0.982
+  HFF    S3 15 -0.491
+ MRC5    S0 15  0.404
+ MRC5    S1 15  0.611
+ MRC5    S2 15  0.731
+ MRC5    S3 15 -0.786
+
+GSE63577 per cell line, senescent minus proliferating (descriptive):
+  line diff.S0 diff.S1 diff.S2 diff.S3
+    BJ   0.177   0.820   0.861  -0.291
+ IMR90   0.125   2.112   1.035  -0.401
+  WI38   0.169   1.269   1.753  -0.550
+   HFF   0.462   1.064   1.793  -0.278
+  MRC5   0.167   0.355   1.292  -0.360
+
+================ STEP B: coupling in vitiligo datasets ================
+Scores carried into Step B: S0, S1 
+Dropped because they were not validated in Step A: S2, S3 
+
+-- GSE75819 --
+Check vs earlier scores: cor(IFN_c) = 1 | cor(SenMayo) = 1 
+
+-- GSE65127 --
+Check vs earlier scores: cor(IFN_c) = 1 | cor(SenMayo) = 1 
+
+-- GSE53146 --
+Check vs earlier scores: cor(IFN_c) = 1 | cor(SenMayo) = 1 
+
+Primary results (standardised slope of IFN_c; CI = 95%):
+  dataset score   beta   ci_low ci_high       p p_BH       class
+ GSE53146    S0  1.171  0.09713   2.244 0.03655   NA     coupled
+ GSE65127    S0  0.477  0.00963   0.944 0.04594   NA     coupled
+ GSE75819    S0  0.524  0.20455   0.844 0.00236   NA     coupled
+ GSE53146    S1 -1.041 -2.43096   0.349 0.11993 0.36 not_coupled
+ GSE65127    S1  0.161 -0.34446   0.667 0.51027 0.51 not_coupled
+ GSE75819    S1  0.188 -0.22309   0.599 0.35594 0.51 not_coupled
+
+Sensitivity: adjusting for the E2F proliferation score, and paired by patient:
+  dataset score beta_E2Fadj p_E2Fadj beta_paired p_paired
+ GSE53146    S0       1.054 0.048038          NA       NA
+ GSE65127    S0       0.468 0.036189      0.5604 0.000856
+ GSE75819    S0       0.550 0.000773      0.3040 0.297107
+ GSE53146    S1      -0.779 0.030844          NA       NA
+ GSE65127    S1       0.157 0.526619      0.3453 0.347115
+ GSE75819    S1       0.181 0.382265     -0.0935 0.785284
+
+Verdict per score (class that holds in >= 2 of 3 datasets):
+           S0            S1 
+    "coupled" "not_coupled" 
+
+Interpretation rule triggered: R1 
+R1: coupling reflects inflammatory secreted content (SenMayo coupled, validated non-secreted scores not coupled).
+
+Secondary: score differences, disease minus normal skin (no verdict):
+  dataset score disease_minus_normal        p
+ GSE75819    S0             -0.11472 2.06e-02
+ GSE75819    S1              0.25479 1.07e-01
+ GSE75819    S2             -0.36545 1.85e-03
+ GSE75819    S3              0.22628 4.70e-06
+ GSE75819  IFNC              0.16881 8.70e-03
+ GSE75819   E2F              0.45004 1.10e-05
+ GSE65127    S0             -0.03947 4.21e-01
+ GSE65127    S1             -0.16821 2.54e-01
+ GSE65127    S2             -0.48385 4.49e-02
+ GSE65127    S3             -0.00692 8.87e-01
+ GSE65127  IFNC             -0.14735 2.31e-01
+ GSE65127   E2F              0.30671 3.25e-02
+ GSE53146    S0              0.14585 1.97e-01
+ GSE53146    S1              0.03308 9.14e-01
+ GSE53146    S2             -0.34919 1.57e-02
+ GSE53146    S3              0.14373 1.99e-02
+ GSE53146  IFNC              0.50531 2.06e-03
+ GSE53146   E2F              0.21980 1.62e-01
+
+Gene-set coverage per dataset:
+  dataset  set n_in_set n_present scored
+ GSE75819   S0      114       110   TRUE
+ GSE75819 S2UP       31        30   TRUE
+ GSE75819 S2DN       56        50   TRUE
+ GSE75819   S3      540       435   TRUE
+ GSE75819  E2F      200       165   TRUE
+ GSE75819 IFNC      181       166   TRUE
+ GSE65127   S0      114       113   TRUE
+ GSE65127 S2UP       31        30   TRUE
+ GSE65127 S2DN       56        54   TRUE
+ GSE65127   S3      540       501   TRUE
+ GSE65127  E2F      200       192   TRUE
+ GSE65127 IFNC      181       175   TRUE
+ GSE53146   S0      114       103   TRUE
+ GSE53146 S2UP       31        30   TRUE
+ GSE53146 S2DN       56        51   TRUE
+ GSE53146   S3      540       459   TRUE
+ GSE53146  E2F      200       181   TRUE
+ GSE53146 IFNC      181       172   TRUE
+
+Done. Results saved in ~/autoimmune-repo/results/04_nonsecreted_senescence 
