@@ -307,10 +307,33 @@ main_analysis <- function(st, data_dir, outdir) {
 ## ==== END FUNCTIONS ====
 
 ## ---------------- sample table from the GEO annotation ----------------
-e   <- getGEO("GSE298871", GSEMatrix = TRUE)[[1]]; ph <- pData(e)
-ttl <- as.character(ph$title)
+# Sample titles as listed on the GEO page of GSE298871 (copied from the GEO listing). They are used if the
+# live GEO lookup fails, which happens occasionally; when the lookup works, it is compared against them.
+emb <- data.frame(
+  gsm = paste0("GSM", 9025365:9025381),
+  title = c("465 (healthy skin)", "486_LS (lesional vitiligo)", "486_NL (non-lesional vitiligo)",
+            "632 (healthy skin)", "658 (healthy skin)", "BIO023_LS (lesional vitiligo)",
+            "CON161 (healthy skin)", "CON171 (healthy skin)", "CON194 (healthy skin)",
+            "DER114_LS (lesional vitiligo)", "DER114_NL (non-lesional vitiligo)",
+            "DER115_LS (lesional vitiligo)", "DER115_NL (non-lesional vitiligo)",
+            "DER119_LS (lesional vitiligo)", "DER119_NL (non-lesional vitiligo)",
+            "DER120_LS (lesional vitiligo)", "DER120_NL (non-lesional vitiligo)"),
+  stringsAsFactors = FALSE)
+live <- tryCatch({
+  ph <- pData(getGEO("GSE298871", GSEMatrix = TRUE)[[1]])
+  data.frame(gsm = rownames(ph), title = as.character(ph$title), stringsAsFactors = FALSE)
+}, error = function(err) NULL)
+if (is.null(live)) {
+  cat("GEO lookup failed; using the sample titles embedded in this script.\n")
+  tt <- emb
+} else {
+  tt <- live
+  if (!identical(sort(paste(tt$gsm, tt$title)), sort(paste(emb$gsm, emb$title))))
+    warning("Live GEO titles differ from the embedded list; check the sample table below.")
+}
+ttl <- tt$title
 st <- data.frame(
-  gsm   = rownames(ph),
+  gsm   = tt$gsm,
   name  = sub("^([^ ]+).*$", "\\1", ttl),
   group = ifelse(grepl("non-lesional", ttl, ignore.case = TRUE), "nonlesional",
           ifelse(grepl("lesional", ttl, ignore.case = TRUE), "lesional",
