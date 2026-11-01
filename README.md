@@ -97,3 +97,11 @@ GSE65127, GSE53146). The original publication for each dataset is listed on its 
   pathways across tissues (SenMayo). Nature Communications, 2022.
 - Fridman AL, Tainsky MA. Critical pathways in cellular senescence and immortalization revealed
   by gene expression profiling. Oncogene, 2008.
+
+## Analysis 05: single-cell pseudobulk (pre-specified)
+
+Plan: `docs/analysis_plan_05.md`. Results: `docs/analysis_05_results.md`.
+- SenMayo coupling to the IFN-γ score is also seen within keratinocytes (GSE298871); the arrest panel was
+  not clearly coupled, but in the whole-sample test its slope was close to SenMayo's.
+- T cells and myeloid cells were too few to test, so immune versus structural cells could not be compared.
+- The earlier conclusion on the arrest panel (analysis 04) is therefore weaker than first stated.

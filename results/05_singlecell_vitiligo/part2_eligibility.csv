@@ -1,0 +1,5 @@
+"cell_type","eligible_samples","healthy","nonlesional","lesional","eligible_pairs","coupling_testable","paired_testable"
+"keratinocyte",16,6,4,6,4,TRUE,TRUE
+"T_cell",6,1,2,3,2,FALSE,FALSE
+"myeloid",2,0,0,2,0,FALSE,FALSE
+"fibroblast",14,5,4,5,3,TRUE,FALSE

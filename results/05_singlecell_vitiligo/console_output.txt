@@ -1,0 +1,148 @@
+GEO lookup failed; using the sample titles embedded in this script.
+Samples by group (expected 6 healthy, 6 lesional, 5 non-lesional):
+
+    healthy    lesional nonlesional 
+          6           6           5 
+Set sizes (analysis 04: S0 114, E2F 200, IFNC 181):
+  S0  E2F IFNC 
+ 114  200  181 
+Panel genes: up = CDKN2A, CDKN2B, GADD45A | down = LMNB1 
+Reading 465 ...
+Reading 486_LS ...
+Reading 486_NL ...
+Reading 632 ...
+Reading 658 ...
+Reading BIO023_LS ...
+Reading CON161 ...
+Reading CON171 ...
+Reading CON194 ...
+Reading DER114_LS ...
+Reading DER114_NL ...
+Reading DER115_LS ...
+Reading DER115_NL ...
+Reading DER119_LS ...
+Reading DER119_NL ...
+Reading DER120_LS ...
+Reading DER120_NL ...
+
+Composition check (cells per class; no scores computed yet):
+    sample       group cells_raw cells_kept keratinocyte T_cell myeloid
+       465     healthy       542        516           58     31      10
+    486_LS    lesional      1345       1304          217     31      22
+    486_NL nonlesional       200        196           39      0       0
+       632     healthy      1106       1024          380     32       7
+       658     healthy       593        555           50      3       5
+ BIO023_LS    lesional      1249       1206          519     21      14
+    CON161     healthy       975        845          506     21      14
+    CON171     healthy      1081        984          178     73       9
+    CON194     healthy      1690       1528          490     28      15
+ DER114_LS    lesional      2701       2331          998    235      98
+ DER114_NL nonlesional      2022       1721          571     94      43
+ DER115_LS    lesional      3485       3307          896    405     128
+ DER115_NL nonlesional      2483       2306          847    180      46
+ DER119_LS    lesional      2699       2401          560     60      37
+ DER119_NL nonlesional      1073        950          255     40       6
+ DER120_LS    lesional       505        420          123      7       6
+ DER120_NL nonlesional       997        868          275     34      19
+ fibroblast endothelial melanocyte mast mural unassigned
+        133         148         15    0    78         43
+         89         579          0    0   247        119
+          5          72          0    0    29         51
+        126         171          6    0   141        161
+         57         245          0    0    97         98
+         70         363          0    0   143         76
+         77         101         43    0    35         48
+         36         430         14    0   183         61
+        104         514          6    0   179        192
+        399         325          1    0    54        221
+        341         337        153    0    70        112
+        945         471          2    0   180        280
+        424         411         43    0   217        138
+        426         452          0    1   558        307
+        135         250         33    0   138         93
+         37         182          0    0    53         12
+        115         228         14    0   132         51
+
+Total cells kept: 22462 | fraction unassigned: 0.092 
+Cells per class, all samples:
+keratinocyte       T_cell      myeloid   fibroblast  endothelial   melanocyte 
+        6962         1295          479         3519         5279          330 
+        mast        mural   unassigned 
+           1         2534         2063 
+Genes common to all samples: 36591 
+Patients with both lesional and non-lesional samples: 486, DER114, DER115, DER119, DER120 
+
+================ PART 1: whole-sample pseudobulk ================
+
+Part 1 results (standardised slope of score on IFN_c):
+                       analysis score  n  beta  ci_low ci_high      p
+ P1 primary (all 17, adj group)    S0 17 0.583  0.1166    1.05 0.0182
+ P1 primary (all 17, adj group)    S1 17 0.500 -0.0113    1.01 0.0545
+ P1 secondary (paired patients)    S0 10 0.675 -1.4300    2.78 0.3825
+ P1 secondary (paired patients)    S1 10 1.253 -0.7120    3.22 0.1355
+ beta_E2Fadj p_E2Fadj        class
+       0.484   0.0363      coupled
+       0.585   0.0294 inconclusive
+       0.377   0.6951 inconclusive
+       0.913   0.3353 inconclusive
+
+Part 1 outcome: P1-inconclusive 
+
+================ PART 2: cell-type pseudobulk ================
+
+-- keratinocyte : eligible samples = 16 | pairs = 4 
+
+-- T_cell : eligible samples = 6 | pairs = 2 
+   not testable (fewer than 8 eligible samples)
+
+-- myeloid : eligible samples = 2 | pairs = 0 
+   not testable (fewer than 8 eligible samples)
+
+-- fibroblast : eligible samples = 14 | pairs = 3 
+
+Eligibility (primary cell types):
+    cell_type eligible_samples healthy nonlesional lesional eligible_pairs
+ keratinocyte               16       6           4        6              4
+       T_cell                6       1           2        3              2
+      myeloid                2       0           0        2              0
+   fibroblast               14       5           4        5              3
+ coupling_testable paired_testable
+              TRUE            TRUE
+             FALSE           FALSE
+             FALSE           FALSE
+              TRUE           FALSE
+
+Part 2 coupling (standardised slope of score on IFN_c within cell type):
+    cell_type score  n  beta ci_low ci_high      p  p_BH        class
+ keratinocyte    S0 16 0.663  0.176   1.150 0.0117 0.047      coupled
+ keratinocyte    S1 16 0.353 -0.233   0.939 0.2139 0.285 inconclusive
+   fibroblast    S0 14 0.526 -0.132   1.184 0.1052 0.210 inconclusive
+   fibroblast    S1 14 0.144 -0.536   0.824 0.6463 0.646  not_coupled
+ beta_E2Fadj p_E2Fadj
+       0.834   0.0058
+       0.679   0.0198
+       0.524   0.1318
+       0.139   0.6807
+
+Flags:
+ F1 (S0 coupled in T cells or myeloid): not testable 
+ F2 (S0 coupled in keratinocytes or fibroblasts): yes 
+ F3 (S1 coupled in any eligible primary class): no 
+Interpretation (fixed in the plan): F2 yes: the coupling is not confined to immune cells. 
+
+Secondary: lesional minus non-lesional, paired by patient (no verdict):
+    cell_type score n_pairs lesional_minus_nonlesional     p
+ keratinocyte  IFNC       4                     0.0917 0.127
+ keratinocyte    S0       4                     0.0925 0.574
+ keratinocyte    S1       4                    -0.5315 0.206
+
+Secondary: non-lesional minus healthy (no verdict):
+    cell_type score nonlesional_minus_healthy     p
+ keratinocyte  IFNC                    0.0279 0.872
+ keratinocyte    S0                   -0.0277 0.778
+ keratinocyte    S1                   -0.3707 0.331
+   fibroblast  IFNC                    0.0373 0.833
+   fibroblast    S0                    0.0848 0.503
+   fibroblast    S1                   -0.3320 0.505
+
+Done. Results saved in ~/autoimmune-repo/results/05_singlecell_vitiligo 
