@@ -23,3 +23,12 @@ Run date: 2026-10-28. No rule, gene list or threshold was changed after seeing r
 - S3's direction was misjudged in the design; it is left dropped, not flipped.
 
 Full tables: results/04_nonsecreted_senescence/
+
+## Update, 2026-11-01 (after analysis 05)
+
+Analysis 05 (docs/analysis_05_results.md) weakens one conclusion drawn above. In the independent
+single-cell dataset GSE298871 the arrest panel S1 was inconclusive in the whole-sample test
+(slope 0.50, 95% CI -0.01 to 1.01, p = 0.055; SenMayo 0.58, p = 0.018). Rule R1 was triggered here as
+pre-specified and that verdict is not changed, but the statement that the coupling reflects inflammatory
+secreted content should be read as unresolved: the arrest panel's lack of coupling in analysis 04 was
+not replicated as a clear null.

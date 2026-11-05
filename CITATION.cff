@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+message: "If you use this repository, please cite it as below."
+title: "Autoimmune-senescence-vitiligo: pre-specified analysis of senescence and interferon signatures in vitiligo skin transcriptomes"
+version: 1.0.0
+date-released: 2026-11-01
+authors:
+  - family-names: Pathak
+    given-names: Aditi
+license: MIT
+repository-code: "https://github.com/aditipathakwork31/Autoimmune-senescence-vitiligo"
+abstract: "Exploratory, pre-specified analysis of public vitiligo skin transcriptome datasets (bulk and single-cell) testing whether senescence scores track interferon activity. Analysis plans and decision rules are committed before results."
+keywords:
+  - vitiligo
+  - cellular senescence
+  - interferon
+  - gene expression
